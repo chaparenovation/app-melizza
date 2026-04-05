@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { THEMES, PIEGE_QUESTIONS, PLAN_30_DAYS, ANXIETY_TIPS } from "./data";
-import { Volume2, VolumeX, ArrowLeft, RefreshCw, Trophy, BookOpen, AlertCircle, Clock, BookMarked, CheckCircle2, XCircle } from "lucide-react";
+import { Volume2, VolumeX, ArrowLeft, RefreshCw, Trophy, BookOpen, AlertCircle, Clock, BookMarked, CheckCircle2, XCircle, UserCircle2 } from "lucide-react";
 
 function shuffleArray(arr) {
   const a = [...arr];
