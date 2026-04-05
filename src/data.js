@@ -190,6 +190,24 @@ export const THEMES = [
       { q: "En conduite accompagnée, le minimum est de:", opts: ["1 000 km en 6 mois", "2 000 km en 1 an", "3 000 km en 1 an", "5 000 km en 2 ans"], correct: 2 },
       { q: "Le numéro d'urgence européen:", opts: ["15", "18", "112", "911"], correct: 2 },
     ]
+  },
+  {
+    id: 11, name: "Top Fallos Nacionales", icon: "📊", color: "#FF5A5F",
+    desc: "Estadísticas: las preguntas que más se fallan en Francia",
+    cards: [
+      { q: "Je m’apprête à quitter un stationnement. Je mets mon clignotant. Ai-je la priorité ?", a: "NON. Un véhicule qui s'insère dans la circulation n'est JAMAIS prioritaire.", tip: "⛔ Clignotant ne donne pas la priorité" },
+      { q: "Dans une rue à double sens, de quel côté dois-je me garer ?", a: "UNIQUEMENT du côté droit de la chaussée (dans le sens de la marche).", tip: "➡️ Garer = Toujours à droite en double sens" },
+      { q: "Quelles sont les feux à allumer en cas de forte pluie ET de brouillard ?", a: "Feux de Croisement + Brouillard AVANT. Le brouillard ARRIÈRE est réservé au brouillard/neige.", tip: "🌧️🌫️ Croisement + Avant (pas arrière si pluie!)" },
+      { q: "Le panneau d'entrée de ville limite la vitesse à:", a: "50 km/h, ET il supprime automatiquement toutes les règles imposées avant l'entrée.", tip: "🏙️ Panneau ville = Règle de 50 + annule antérieures" },
+      { q: "Si je refuse de me soumettre au dépistage d'alcool ou drogue:", a: "C'est un délit sévère. Perte automatique de 6 points + 4500€ d'amende.", tip: "❌ Refus = Sanction MAX (6 points + délit)" }
+    ],
+    quiz: [
+      { q: "En sortant d'une place de parking avec mon clignotant:", opts: ["Je suis prioritaire", "Je dois céder le passage", "Je klaxonne", "Je passe direct"], correct: 1 },
+      { q: "Le panneau avec le nom de la ville limite la vitesse à:", opts: ["70 km/h", "50 km/h", "30 km/h", "Aucune limite"], correct: 1 },
+      { q: "Refuser un dépistage d'alcool entraîne la perte de:", opts: ["2 points", "4 points", "6 points", "Le permis directement"], correct: 2 },
+      { q: "En double sens, le stationnement se fait normalement:", opts: ["À gauche", "Où il y a de la place", "À droite uniquement", "Sur le trottoir"], correct: 2 },
+      { q: "Brouillard ARRIÈRE par forte pluie:", opts: ["Obligatoire", "Conseillé", "Stritement interdit", "Toléré la nuit"], correct: 2 }
+    ]
   }
 ];
 

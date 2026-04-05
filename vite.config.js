@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'Melizza: Objectif Code de la Route',
-        short_name: 'Melizza Code',
+        name: 'PELUCHE RUTE',
+        short_name: 'PELUCHE RUTE',
         description: 'App para aprobar el examen de conducir en Francia',
         theme_color: '#0a0a1a',
         background_color: '#0a0a1a',

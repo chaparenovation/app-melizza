@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { THEMES, PIEGE_QUESTIONS, PLAN_30_DAYS, ANXIETY_TIPS } from "./data";
-import { Volume2, VolumeX, ArrowLeft, RefreshCw, Trophy, BookOpen, AlertCircle, Clock, BookMarked, CheckCircle2 } from "lucide-react";
+import { Volume2, VolumeX, ArrowLeft, RefreshCw, Trophy, BookOpen, AlertCircle, Clock, BookMarked, CheckCircle2, UserCircle2 } from "lucide-react";
 
 function shuffleArray(arr) {
   const a = [...arr];
@@ -32,8 +32,15 @@ const VoiceBtn = ({ text, lang, small, onPlay }) => (
   }} title="Écouter en français"><Volume2 size={small ? 16 : 20} /></button>
 );
 
+const PROFILES = [
+  { id: "peluche", name: "PELUCHE", color: "#F4A261" },
+  { id: "jhonattan", name: "JHONATTAN", color: "#2A9D8F" }
+];
+
 export default function App() {
-  const [screen, setScreen] = useState("home");
+  const [activeProfile, setActiveProfile] = useState(null); // Local user profile
+  
+  const [screen, setScreen] = useState("profile_selection");
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -44,9 +51,9 @@ export default function App() {
   const [quizDone, setQuizDone] = useState(false);
   const [quizQuestions, setQuizQuestions] = useState([]);
   
-  // Persistence
-  const [completedThemes, setCompletedThemes] = useState(() => JSON.parse(localStorage.getItem('melizza_themes')) || {});
-  const [errorBank, setErrorBank] = useState(() => JSON.parse(localStorage.getItem('melizza_errors')) || []);
+  // Persistence initialized depending on profile
+  const [completedThemes, setCompletedThemes] = useState({});
+  const [errorBank, setErrorBank] = useState([]);
   
   const [showPlan, setShowPlan] = useState(false);
   const [planWeek, setPlanWeek] = useState(1);
@@ -58,13 +65,24 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(20);
   const [isSimulation, setIsSimulation] = useState(false);
 
+  // Load profile data when a profile is selected
   useEffect(() => {
-    localStorage.setItem('melizza_themes', JSON.stringify(completedThemes));
-  }, [completedThemes]);
+    if (activeProfile) {
+      const themesStr = localStorage.getItem(`${activeProfile}_themes`);
+      const errStr = localStorage.getItem(`${activeProfile}_errors`);
+      setCompletedThemes(themesStr ? JSON.parse(themesStr) : {});
+      setErrorBank(errStr ? JSON.parse(errStr) : []);
+      setScreen("home");
+    }
+  }, [activeProfile]);
 
+  // Save profile data changes
   useEffect(() => {
-    localStorage.setItem('melizza_errors', JSON.stringify(errorBank));
-  }, [errorBank]);
+    if (activeProfile) {
+      localStorage.setItem(`${activeProfile}_themes`, JSON.stringify(completedThemes));
+      localStorage.setItem(`${activeProfile}_errors`, JSON.stringify(errorBank));
+    }
+  }, [completedThemes, errorBank, activeProfile]);
 
   useEffect(() => {
     if ("speechSynthesis" in window) window.speechSynthesis.getVoices();
@@ -81,6 +99,15 @@ export default function App() {
       }
     }
   }, [timeLeft, screen, isSimulation, quizDone, quizSelected]);
+
+  const selectProfile = (profileId) => {
+    setActiveProfile(profileId);
+  };
+
+  const logout = () => {
+    setActiveProfile(null);
+    setScreen("profile_selection");
+  };
 
   const startFlashcards = (theme) => {
     setSelectedTheme(theme);
@@ -133,7 +160,7 @@ export default function App() {
 
   const startErrorQuiz = () => {
     if(errorBank.length === 0) return;
-    setQuizQuestions(shuffleArray(errorBank).slice(0, 20)); // Mix up to 20 errors
+    setQuizQuestions(shuffleArray(errorBank).slice(0, 20)); 
     setQuizIndex(0);
     setQuizSelected(null);
     setQuizScore(0);
@@ -152,12 +179,10 @@ export default function App() {
     
     if (correct) {
       setQuizScore(s => s + 1);
-      // Remove from errors if testing error bank
       if(selectedTheme?.name === "Banco de Errores") {
         setErrorBank(prev => prev.filter(q => q.q !== currentQ.q));
       }
     } else {
-      // Add to error bank if not already there
       if (!errorBank.find(q => q.q === currentQ.q)) {
         setErrorBank(prev => [...prev, currentQ]);
       }
@@ -179,7 +204,7 @@ export default function App() {
           }));
         }
       }
-    }, correct ? 1400 : 2500); // Give more time to read 'explain' if wrong
+    }, correct ? 1400 : 2500); 
   };
 
   const progress = Object.keys(completedThemes).length;
@@ -194,17 +219,57 @@ export default function App() {
     </button>
   );
 
+  // Profile Selection Screen
+  if (screen === "profile_selection") {
+    return (
+      <div style={{ position: "relative", zIndex: 1, maxWidth: "480px", margin: "0 auto", padding: "30px 12px", minHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <h1 style={{
+            fontFamily: "'Playfair Display', serif", fontSize: "32px", fontWeight: 900,
+            background: "linear-gradient(90deg, #E9C46A, #E63946)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0, lineHeight: 1.2
+          }}>PELUCHE RUTE 🐻</h1>
+          <p style={{ fontSize: "14px", color: "#888", marginTop: "8px" }}>¿Quién está estudiando o jugando hoy?</p>
+        </div>
+        
+        <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap" }}>
+          {PROFILES.map(profile => (
+            <div key={profile.id} onClick={() => selectProfile(profile.id)} style={{
+              background: "rgba(255,255,255,0.05)", border: `2px solid ${profile.color}55`, borderRadius: "20px", 
+              padding: "30px 20px", cursor: "pointer", textAlign: "center", width: "140px",
+              boxShadow: `0 4px 15px ${profile.color}22`, transition: "transform 0.2s"
+            }}>
+              <UserCircle2 size={60} color={profile.color} style={{ margin: "0 auto 10px" }} />
+              <div style={{ fontWeight: 800, fontSize: "15px", color: "#fff", letterSpacing: "1px" }}>{profile.name}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ position: "relative", zIndex: 1, maxWidth: "480px", margin: "0 auto", padding: "12px", paddingBottom: "90px" }}>
       {/* HEADER */}
-      <div style={{ textAlign: "center", padding: "18px 0 10px" }}>
+      <div style={{ textAlign: "center", padding: "10px 0 10px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+           <button onClick={logout} style={{
+              background: "rgba(255,255,255,0.1)", border: "none", borderRadius: "10px", padding: "6px 12px", 
+              color: "#aaa", fontSize: "11px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px"
+           }}><UserCircle2 size={14} /> Cambiar Perfil</button>
+           
+           <span style={{ fontSize: "11px", fontWeight: 800, color: PROFILES.find(p => p.id === activeProfile)?.color || "#fff", background: "rgba(255,255,255,0.05)", padding: "4px 10px", borderRadius: "10px" }}>
+              HOLA {activeProfile?.toUpperCase()}
+           </span>
+        </div>
+      
         <h1 style={{
           fontFamily: "'Playfair Display', serif", fontSize: "24px", fontWeight: 900,
           background: "linear-gradient(90deg, #E9C46A, #E63946)",
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", margin: 0, lineHeight: 1.2
-        }}>Melizza: Objectif Code 🚀</h1>
+        }}>PELUCHE RUTE 🚀</h1>
         <p style={{ fontSize: "11px", color: "#aaa", margin: "4px 0 0", letterSpacing: "1px", textTransform: "uppercase" }}>
-          Tú puedes con este examen
+          Objertivo: Code de la Route
         </p>
         <button onClick={() => setVoiceEnabled(!voiceEnabled)} style={{
           marginTop: "12px", background: voiceEnabled ? "rgba(42,157,143,0.25)" : "rgba(255,255,255,0.08)",
@@ -223,10 +288,10 @@ export default function App() {
           <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: "14px", padding: "12px 14px", marginBottom: "12px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "6px" }}>
               <span style={{ fontWeight: 700, color: "#E9C46A" }}>Progreso de Temas</span>
-              <span style={{ color: "#888", fontWeight: 700 }}>{progress}/10 temas</span>
+              <span style={{ color: "#888", fontWeight: 700 }}>{progress}/{THEMES.length} temas</span>
             </div>
             <div style={{ height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px" }}>
-              <div style={{ height: "100%", width: `${(progress / 10) * 100}%`, background: "linear-gradient(90deg, #2A9D8F, #E9C46A)", borderRadius: "3px", transition: "width 0.5s" }} />
+              <div style={{ height: "100%", width: `${(progress / THEMES.length) * 100}%`, background: "linear-gradient(90deg, #2A9D8F, #E9C46A)", borderRadius: "3px", transition: "width 0.5s" }} />
             </div>
           </div>
 
@@ -501,7 +566,7 @@ export default function App() {
               <Trophy size={60} color={quizScore / quizQuestions.length >= 0.875 ? "#E9C46A" : "#888"} style={{ marginBottom: "16px" }} />
               <h2 style={{ fontSize: "28px", fontWeight: 900, margin: "0 0 8px" }}>{quizScore}/{quizQuestions.length}</h2>
               <p style={{ color: "#aaa", fontSize: "15px", margin: "0 0 16px" }}>
-                {quizScore / quizQuestions.length >= 0.875 ? "¡Excelente, estás lista! 🎉" : quizScore / quizQuestions.length >= 0.7 ? "¡Buen trabajo! Sigue así" : "Hay que repasar un poco más 💪"}
+                {quizScore / quizQuestions.length >= 0.875 ? "¡Excelente, estás list@! 🎉" : quizScore / quizQuestions.length >= 0.7 ? "¡Buen trabajo! Sigue así" : "Hay que repasar un poco más 💪"}
               </p>
               
               {isSimulation && (
